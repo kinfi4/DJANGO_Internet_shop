@@ -1,9 +1,24 @@
+import sys
+
+from PIL import Image
+
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
+from django.core.files.uploadedfile import InMemoryUploadedFile
+
+from io import BytesIO
 
 User = get_user_model()
+
+
+class MinResolutionError(Exception):
+    pass
+
+
+class MaxResolutionError(Exception):
+    pass
 
 
 class Category(models.Model):
@@ -15,6 +30,10 @@ class Category(models.Model):
 
 
 class Product(models.Model):
+
+    MIN_RESOLUTION = (400, 400)
+    MAX_RESOLUTION = (3000, 3000)
+
     class Meta:
         abstract = True
 
@@ -27,6 +46,33 @@ class Product(models.Model):
 
     def __str__(self):
         return self.title
+
+    def save(self, *args, **kwargs):
+        image = self.image
+        img = Image.open(image)
+
+        min_height, min_width = Product.MIN_RESOLUTION
+        max_height, max_width = Product.MAX_RESOLUTION
+
+        if img.height > max_height or img.width > max_height:
+            raise MaxResolutionError('The loaded image is too big')
+
+        if img.height < min_height or img.width < min_width:
+            raise MinResolutionError('The loaded image is too small')
+        # The system of trim images
+        # image = self.image
+        # img = Image.open(image)
+        # new_image = img.convert('RGB')
+        # resized_image = new_image.resize((200, 200), Image.ANTIALIAS)
+        # filestream = BytesIO()
+        # resized_image.save(filestream, 'JPEG', qulity=98)
+        # filestream.seek(0)
+        #
+        # self.image = InMemoryUploadedFile(
+        #     filestream, 'ImageField', self.image.name, 'jpeg/image', sys.getsizeof(filestream), None
+        # )
+
+        super().save(*args, **kwargs)
 
 
 class Notebook(Product):
