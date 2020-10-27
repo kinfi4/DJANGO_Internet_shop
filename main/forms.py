@@ -10,9 +10,7 @@ class OrderForm(forms.ModelForm):
              'first_name', 'last_name', 'phone', 'address', 'buying_type', 'order_date', 'comment'
         )
 
-#
-#
 # class AuthUserForm(AuthenticationForm, ModelForm):
 #     class Meta:
 #         model = User
-#         fields = ('Login', 'Password')
+#         fields = ('Login', 'Password')Xiomi Redmi 8a
