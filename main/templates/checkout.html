@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+<h3 class="mb-5 mt-5 text-center">Your cart {% if not cart.products.count %} is empty {% endif %}</h3>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Title</th>
+      <th scope="col">Image</th>
+      <th scope="col">Price</th>
+      <th scope="col">Amount</th>
+      <th scope="col">Full price</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for item in cart.products.all %}
+        <tr>
+          <th scope="row">{{ item.content_object.title }}</th>
+          <td class="w-25"><img src="{{ item.content_object.image.url }}" class="img-fluid"></td>
+          <td>{{ item.content_object.price }}</td>
+          <td>{{ item.qty }}</td>
+          <td>{{ item.final_price }}</td>
+        </tr>
+  {% endfor %}
+
+        <tr>
+          <td colspan="2"></td>
+          <td>Finally:</td>
+          <td>{{ cart.total_products }}</td>
+          <td><strong>{{ cart.final_price }} грн.</strong></td>
+        </tr>
+
+  </tbody>
+</table>
+<hr>
+<h3 class="mb-5 mt-5 text-center">Order form</h3>
+<form action="{% url 'make_order' %}" method="POST">
+  {% csrf_token %}
+  {{ form|crispy }}
+  <input type="submit" class="btn btn-success btn-block" value="Order">
+</form>
+<br>
+{% endblock content %}
